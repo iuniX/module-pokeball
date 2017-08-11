@@ -1,0 +1,11 @@
+Module
+  name: game_pokeballs
+  description: Pokeballs Window
+  author: iuniX
+  website: www.otclient.info
+  autoload-priority: 1001
+  autoload: true
+  sandboxed: true
+  scripts: [ pokeballs ]
+  @onLoad: init()
+  @onUnload: terminate()

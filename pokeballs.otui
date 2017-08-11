@@ -1,0 +1,185 @@
+PokeballWidget < Panel
+  size: 43 13
+  
+  UIWidget
+    id: pokeballImage
+    image-size: 13 13
+    image-smooth: true
+    image-fixed-ratio: true
+    anchors.top: parent.top
+    anchors.left: parent.left
+    
+  Label
+    id: pokeballCount
+    size: 30 13
+    anchors.left: prev.right
+    anchors.top: prev.top
+
+PokemonData < Panel
+  height: 35
+  padding: 1
+  margin-top: 2    
+  
+  UIWidget
+    id: dataNumber
+    anchors.verticalCenter: parent.verticalCenter
+    anchors.left: parent.left
+    width: 50
+    text-offset: 5 0
+    
+  UIWidget
+    id: dataImage
+    image-size: 32 32
+    image-smooth: true
+    image-fixed-ratio: true
+    anchors.top: parent.top
+    anchors.left: dataNumber.right
+    margin-left: 16
+    width: 50
+  
+  UIWidget
+    id: dataName 
+    anchors.verticalCenter: dataNumber.verticalCenter
+    anchors.left: dataImage.right
+    width: 100
+    
+  UIWidget
+    id: dataPokeballs
+    size: 390 30
+    anchors.top: parent.top
+    anchors.left: dataName.right
+    layout:
+      type: grid
+      cell-size: 43 15
+      cell-spacing: 0
+      flow: true
+      
+  UIWidget
+    id: dataTotal 
+    anchors.verticalCenter: dataNumber.verticalCenter
+    anchors.right: parent.right
+    text-align: center
+    width: 70
+
+MainWindow
+  id: pokeballsWindow
+  focusable: true
+  !text: tr("Pokeballs Count")
+  size: 720 400
+  @onEscape: hide()
+
+  Panel
+    id: orderPanel
+    anchors.top: parent.top
+    anchors.right: parent.right
+    anchors.left: parent.left
+    margin-left: 8
+    margin-right: 20
+    height: 20
+    layout:
+      type: horizontalBox
+      
+    UIButton
+      id: orderByNumber
+      text: "#"
+      width: 50
+      image-source: /images/ui/button_rounded
+      image-color: white
+      image-clip: 0 0 20 20
+      image-border: 3
+      padding: 5 10 5 10
+      @onClick: refreshData("number")
+        
+    UIButton
+      id: orderByName
+      !text: tr("Name")
+      width: 150
+      image-source: /images/ui/button_rounded
+      image-color: white
+      image-clip: 0 0 20 20
+      image-border: 3
+      padding: 5 10 5 10
+      @onClick: refreshData("name")
+        
+    UIButton
+      id: pokeballsButton
+      !text: tr("Pokeballs")
+      width: 390
+      image-source: /images/ui/button_rounded
+      image-color: white
+      image-clip: 0 0 20 20
+      image-border: 3
+      padding: 5 10 5 10
+        
+    UIButton
+      id: orderByTotal
+      !text: tr("Total")
+      width: 75
+      image-source: /images/ui/button_rounded
+      image-color: white
+      image-clip: 0 0 20 20
+      image-border: 3
+      @onClick: refreshData("total")
+
+  TextList
+    id: pokemonsList
+    anchors.top: orderPanel.bottom
+    anchors.left: orderPanel.left
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    image-source: /images/ui/textedit
+    focusable: true  
+    margin-bottom: 30
+    margin-right: 15
+    vertical-scrollbar: pokemonsScrollBar
+
+  VerticalScrollBar
+    id: pokemonsScrollBar
+    anchors.top: pokemonsList.top
+    anchors.bottom: pokemonsList.bottom
+    anchors.left: pokemonsList.right
+    step: 30
+    pixels-scroll: true
+    
+  Panel
+    id: loadingPanel
+    anchors.top: pokemonsList.bottom
+    anchors.horizontalCenter: parent.horizontalCenter
+    image-source: images/loading
+    margin-top: 15
+    visible: true
+    
+  Label
+    id: searchLabel
+    !text: tr("Search: ")
+    anchors.top: loadingPanel.top
+    anchors.left: orderPanel.left
+    
+  TextEdit
+    id: searchText
+    width: 150
+    anchors.left: searchLabel.right   
+    anchors.verticalCenter: searchLabel.verticalCenter
+    @onTextChange: onSearchTextChange(self:getText())
+    
+  Button
+    id: exitButton
+    width: 90
+    anchors.right: parent.right 
+    anchors.bottom: parent.bottom
+    margin-right: 10
+    text: "Close"
+    @onClick: hide()
+
+  CheckBox
+    id: checkBox
+    anchors.right: prev.left
+    anchors.bottom: parent.bottom
+    margin-right: 10    
+    enabled: true
+    @onCheckChange: _onCheck()
+
+  Label
+    !text: tr("Show all ")
+    anchors.right: prev.left
+    anchors.bottom: parent.bottom
