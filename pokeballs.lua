@@ -72,16 +72,16 @@ function receiveData(t)
     local currentID = info[1]
     currentIndex = currentIndex + 1
     PokemonsInfo[currentIndex] = {}
-    PokemonsInfo[currentIndex]["balls"] = info[2]
-    PokemonsInfo[currentIndex]["id"] = currentID + (0.1*special)
-    PokemonsInfo[currentIndex]["special"] = special
-    PokemonsInfo[currentIndex]["name"] = info[4]
-    PokemonsInfo[currentIndex]["total"] = 0
-    PokemonsInfo[currentIndex]["price"] = info[5]
-    PokemonsInfo[currentIndex]["waste"] = info[6]
+    PokemonsInfo[currentIndex].balls = info[2]
+    PokemonsInfo[currentIndex].id = currentID + (0.1*special)
+    PokemonsInfo[currentIndex].special = special
+    PokemonsInfo[currentIndex].name = info[4]
+    PokemonsInfo[currentIndex].total = 0
+    PokemonsInfo[currentIndex].price = info[5]
+    PokemonsInfo[currentIndex].waste = info[6]
 
     for ballID, value in pairs(PokemonsInfo[currentIndex].balls) do
-      PokemonsInfo[currentIndex]["total"] = PokemonsInfo[currentIndex]["total"] + value
+      PokemonsInfo[currentIndex].total = PokemonsInfo[currentIndex].total + value
     end
   end
   refreshData() 
@@ -128,35 +128,35 @@ function refreshData(orderType)
 end
 
 function addData(data)
-  if data["total"] == 0 then
+  if data.total == 0 then
     return
   end
 
   local currentPokemon = g_ui.createWidget('PokemonData', pokemonsList)
-  currentPokemon:setId(data["name"])
+  currentPokemon:setId(data.name)
   local numberString = ""  
 
-  if data["id"] < 100 then
+  if data.id < 100 then
     numberString = "0" .. numberString
   end
   
-  if data["id"] < 10 then
+  if data.id < 10 then
     numberString = "0" .. numberString
   end
             
   local imagem = currentPokemon:getChildById("dataImage")
-  imagem:setImageSource("/game_pokedex/pokemons/" .. numberString .. data["id"])
-  imagem:setTooltip("Npc Price: $" .. data["price"] .. "\nTotal Spent: $" .. data["waste"])
+  imagem:setImageSource("/game_pokedex/pokemons/" .. numberString .. data.id)
+  imagem:setTooltip("Npc Price: $" .. data.price .. "\nTotal Spent: $" .. data.waste)
   
-  if data["special"] then
-    numberString = numberString .. (data['id'] - (0.1*data['special']))
+  if data.special then
+    numberString = numberString .. (data.id - (0.1*data.special))
   else
-    numberString = numberString .. data["id"] 
+    numberString = numberString .. data.id 
   end
   
-  currentPokemon:getChildById("dataName"):setText(data["name"])
+  currentPokemon:getChildById("dataName"):setText(data.name)
   currentPokemon:getChildById("dataNumber"):setText("#".. numberString)
-  currentPokemon:getChildById("dataTotal"):setText(data["total"])
+  currentPokemon:getChildById("dataTotal"):setText(data.total)
 
   for ballID = 1,18 do
     if showAllCheckBox:isChecked() then
@@ -165,19 +165,19 @@ function addData(data)
       currentPokeball:setId(ballID)
       local pbImage = currentPokeball:getChildById("pokeballImage")
       pbImage:setImageSource("images/pb" .. ballID)
-      local balls = data["balls"][ballID]
+      local balls = data.balls[ballID]
       if not balls then
         balls = 0
       end
       currentPokeball:getChildById("pokeballCount"):setText(balls)   
     else
-      if data["balls"][ballID] then
+      if data.balls[ballID] then
         local pokeballsPanel = currentPokemon:getChildById("dataPokeballs")
         local currentPokeball = g_ui.createWidget('PokeballWidget', pokeballsPanel)
         currentPokeball:setId(ballID)
         local pbImage = currentPokeball:getChildById("pokeballImage")
         pbImage:setImageSource("images/pb" .. ballID)
-        currentPokeball:getChildById("pokeballCount"):setText(data["balls"][ballID])
+        currentPokeball:getChildById("pokeballCount"):setText(data.balls[ballID])
       end
     end
   end
