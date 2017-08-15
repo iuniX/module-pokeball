@@ -44,11 +44,21 @@ function terminate()
   p_pokeballTopMenuButton:destroy()
 end
 
+function show()
+  pokeballsWindow:show()
+  pokeballsWindow:raise()
+  pokeballsWindow:focus()
+end
+
+function hide()
+  pokeballsWindow:hide()
+end
+
 function toggle (var)
   if pokeballsWindow:isVisible() then
     pokeballsWindow:hide()
   else
-    g_game.sendExtended(BALLS_OPCODE, 'z')
+    g_game.sendExtended(BALLS_OPCODE, "open")
   end
 end
 
@@ -134,18 +144,11 @@ function addData(data)
 
   local currentPokemon = g_ui.createWidget('PokemonData', pokemonsList)
   currentPokemon:setId(data.name)
-  local numberString = ""  
-
-  if data.id < 100 then
-    numberString = "0" .. numberString
-  end
+  local numberString = ""
   
-  if data.id < 10 then
-    numberString = "0" .. numberString
-  end
-            
+
   local imagem = currentPokemon:getChildById("dataImage")
-  imagem:setImageSource("/game_pokedex/pokemons/" .. numberString .. data.id)
+  imagem:setImageSource("/game_pokedex/pokemons/" .. numberString .. string.format("%03d", data.id))
   imagem:setTooltip("Npc Price: $" .. data.price .. "\nTotal Spent: $" .. data.waste)
   
   if data.special then
@@ -155,42 +158,21 @@ function addData(data)
   end
   
   currentPokemon:getChildById("dataName"):setText(data.name)
-  currentPokemon:getChildById("dataNumber"):setText("#".. numberString)
+  currentPokemon:getChildById("dataNumber"):setText("#".. string.format("%03d", data.id))
   currentPokemon:getChildById("dataTotal"):setText(data.total)
 
   for ballID = 1,18 do
-    if showAllCheckBox:isChecked() then
+    if showAllCheckBox:isChecked() or data.balls[ballID] then
       local pokeballsPanel = currentPokemon:getChildById("dataPokeballs")
       local currentPokeball = g_ui.createWidget('PokeballWidget', pokeballsPanel)
       currentPokeball:setId(ballID)
       local pbImage = currentPokeball:getChildById("pokeballImage")
       pbImage:setImageSource("images/pb" .. ballID)
-      local balls = data.balls[ballID]
-      if not balls then
-        balls = 0
-      end
+
+      local balls = data.balls[ballID] or 0
       currentPokeball:getChildById("pokeballCount"):setText(balls)   
-    else
-      if data.balls[ballID] then
-        local pokeballsPanel = currentPokemon:getChildById("dataPokeballs")
-        local currentPokeball = g_ui.createWidget('PokeballWidget', pokeballsPanel)
-        currentPokeball:setId(ballID)
-        local pbImage = currentPokeball:getChildById("pokeballImage")
-        pbImage:setImageSource("images/pb" .. ballID)
-        currentPokeball:getChildById("pokeballCount"):setText(data.balls[ballID])
-      end
-    end
+   end
   end
-end
-
-function hide()
-  pokeballsWindow:hide()
-end
-
-function show()
-  pokeballsWindow:show()
-  pokeballsWindow:raise()
-  pokeballsWindow:focus()
 end
 
 function onSearchTextChange(text)
