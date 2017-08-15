@@ -28,7 +28,6 @@ function init()
   showAllCheckBox:setChecked(true)
   preSortType = "id"
   sortOrder = "asc"
-
   
   g_game.handleExtended(BALLS_OPCODE, receiveData)  
   connect(g_game, { onGameEnd = hide})
@@ -53,7 +52,7 @@ function hide()
   pokeballsWindow:hide()
 end
 
-function toggle (var)
+function toggle(var)
   if pokeballsWindow:isVisible() then
     pokeballsWindow:hide()
   else
@@ -172,7 +171,6 @@ end
 
 function onSearchTextChange(text)
   if #text <= 0 then return refreshData() end
-  local results = {}
   cleanPokemons()
   for _, value in ipairs(PokemonsInfo) do
     if string.find(string.lower(value.name), string.lower(text)) then
