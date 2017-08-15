@@ -12,7 +12,6 @@ preSortType = nil
 sortOrder = nil
 loadingPanel = nil
 
-
 local p_pokeballTopMenuButton
 local _startWindow
 
@@ -77,7 +76,7 @@ function receiveData(t)
   local currentIndex = #PokemonsInfo
 
   for i = 1,#t do
-    local info = t[i] 
+    local info = t[i]
     local special = info[3] or 0
     local currentID = info[1]
     currentIndex = currentIndex + 1
@@ -144,18 +143,15 @@ function addData(data)
 
   local currentPokemon = g_ui.createWidget('PokemonData', pokemonsList)
   currentPokemon:setId(data.name)
-  local numberString = ""
-  
+  local id = string.format("%03d", data.id)
+
+  if data.special > 0 then
+    id = id + (0.1 * data.special)
+  end
 
   local imagem = currentPokemon:getChildById("dataImage")
-  imagem:setImageSource("/game_pokedex/pokemons/" .. numberString .. string.format("%03d", data.id))
+  imagem:setImageSource("/game_pokedex/pokemons/" .. id)
   imagem:setTooltip("Npc Price: $" .. data.price .. "\nTotal Spent: $" .. data.waste)
-  
-  if data.special then
-    numberString = numberString .. (data.id - (0.1*data.special))
-  else
-    numberString = numberString .. data.id 
-  end
   
   currentPokemon:getChildById("dataName"):setText(data.name)
   currentPokemon:getChildById("dataNumber"):setText("#".. string.format("%03d", data.id))
@@ -168,7 +164,6 @@ function addData(data)
       currentPokeball:setId(ballID)
       local pbImage = currentPokeball:getChildById("pokeballImage")
       pbImage:setImageSource("images/pb" .. ballID)
-
       local balls = data.balls[ballID] or 0
       currentPokeball:getChildById("pokeballCount"):setText(balls)   
    end
