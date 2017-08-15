@@ -24,7 +24,7 @@ function init()
   pokemonsListScrollBar = pokeballsWindow:getChildById('pokemonsListScrollBar')
   loadingPanel = pokeballsWindow:getChildById("loadingPanel")
   showAllCheckBox = pokeballsWindow:getChildById("showAllCheckBox")
-  connect(showAllCheckBox, {onCheckChange = _onCheck})
+  connect(showAllCheckBox, {onCheckChange = onShowAllChecked})
   showAllCheckBox:setChecked(true)
   preSortType = "id"
   sortOrder = "asc"
@@ -188,7 +188,7 @@ function cleanPokemons()
   end
 end
 
-function _onCheck()
+function onShowAllChecked()
   cleanPokemons()
   for _, value in ipairs(PokemonsInfo) do
     addData(value)

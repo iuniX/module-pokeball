@@ -174,7 +174,7 @@ MainWindow
     anchors.bottom: parent.bottom
     margin-right: 10    
     enabled: true
-    @onCheckChange: _onCheck()
+    @onCheckChange: onShowAllChecked()
 
   Label
     !text: tr("Show all ")
