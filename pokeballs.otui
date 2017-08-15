@@ -83,10 +83,9 @@ MainWindow
       id: orderByNumber
       text: "#"
       width: 50
-      image-source: /images/ui/button_rounded
-      image-color: white
-      image-clip: 0 0 20 20
-      image-border: 3
+      background-color: #222222
+      border-width: 1
+      border-color: #191919
       padding: 5 10 5 10
       @onClick: refreshData("number")
         
@@ -94,10 +93,9 @@ MainWindow
       id: orderByName
       !text: tr("Name")
       width: 150
-      image-source: /images/ui/button_rounded
-      image-color: white
-      image-clip: 0 0 20 20
-      image-border: 3
+      background-color: #222222
+      border-width: 1
+      border-color: #191919
       padding: 5 10 5 10
       @onClick: refreshData("name")
         
@@ -105,20 +103,19 @@ MainWindow
       id: pokeballsButton
       !text: tr("Pokeballs")
       width: 390
-      image-source: /images/ui/button_rounded
-      image-color: white
-      image-clip: 0 0 20 20
-      image-border: 3
+      background-color: #222222
+      border-width: 1
+      border-color: #191919
       padding: 5 10 5 10
         
     UIButton
       id: orderByTotal
       !text: tr("Total")
       width: 75
-      image-source: /images/ui/button_rounded
-      image-color: white
-      image-clip: 0 0 20 20
-      image-border: 3
+      background-color: #222222
+      border-width: 1
+      border-color: #191919
+      focusable: false
       @onClick: refreshData("total")
 
   TextList

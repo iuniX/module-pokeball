@@ -1,6 +1,5 @@
 PokeballCount = { }
 local BALLS_OPCODE = 166
-local BALLS_RECIEVECODE = 249
 
 PokemonsInfo = {}
 pokeballsWindow = nil
@@ -18,7 +17,7 @@ local p_pokeballTopMenuButton
 local _startWindow
 
 function init()
-  p_pokeballTopMenuButton = modules.client_topmenu.addRightGameButton('pokeballButton', tr('Contador de Pokeballs'), 'images/Button', toggle, true)
+  p_pokeballTopMenuButton = modules.client_topmenu.addRightGameButton('pokeballButton', tr('Contador de Pokeballs'), 'images/button', toggle, true)
 
   pokeballsWindow = g_ui.displayUI('pokeballs')
   
@@ -49,7 +48,7 @@ function toggle (var)
   if pokeballsWindow:isVisible() then
     pokeballsWindow:hide()
   else
-    g_game.sendExtended(BALLS_RECIEVECODE, 'z')
+    g_game.sendExtended(BALLS_OPCODE, 'z')
   end
 end
 
@@ -58,9 +57,11 @@ function receiveData(t)
     if t == 1 then
       PokemonsInfo = {}
       show()
-      return toggleLoading(true)
+      toggleLoading(true)
+      return true
     else
-      return toggleLoading(false)
+      toggleLoading(false)
+      return true
     end
   end
 
@@ -68,17 +69,18 @@ function receiveData(t)
 
   for i = 1,#t do
     local info = t[i] 
-    local special = info[3] or 0
+    local special = info["isShiny"] or 0
     local currentID = info[1]
     currentIndex = currentIndex + 1
     PokemonsInfo[currentIndex] = {}
     PokemonsInfo[currentIndex].id = currentID + (0.1*special)
     PokemonsInfo[currentIndex].special = special
-    PokemonsInfo[currentIndex].name = info[4]
+    PokemonsInfo[currentIndex].name = info["pokeName"]
     PokemonsInfo[currentIndex].balls = info[2]
     PokemonsInfo[currentIndex].total = 0
-    PokemonsInfo[currentIndex].price = info[5]
-    PokemonsInfo[currentIndex].waste = info[6]
+    PokemonsInfo[currentIndex].price = info["pokePrice"]
+    PokemonsInfo[currentIndex].waste = info["totalWaste"]
+
     for ballID, value in pairs(PokemonsInfo[currentIndex].balls) do
       PokemonsInfo[currentIndex].total = PokemonsInfo[currentIndex].total + value
     end
