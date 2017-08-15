@@ -24,10 +24,10 @@ function init()
   pokemonsList = pokeballsWindow:getChildById('pokemonsList')
   pokemonsListScrollBar = pokeballsWindow:getChildById('pokemonsListScrollBar')
   loadingPanel = pokeballsWindow:getChildById("loadingPanel")
-  checkBox = pokeballsWindow:getChildById("checkBox")
-  connect(checkBox, {onCheckChange = _onCheck})
-  checkBox:setChecked(true)
-  preSortType = "number"
+  showAllCheckBox = pokeballsWindow:getChildById("showAllCheckBox")
+  connect(showAllCheckBox, {onCheckChange = _onCheck})
+  showAllCheckBox:setChecked(true)
+  preSortType = "id"
   sortOrder = "asc"
 
   
@@ -58,11 +58,10 @@ function receiveData(t)
       PokemonsInfo = {}
       show()
       toggleLoading(true)
-      return true
-    else
-      toggleLoading(false)
-      return true
+      return
     end
+    toggleLoading(false)
+    return
   end
 
   local currentIndex = #PokemonsInfo
@@ -73,16 +72,16 @@ function receiveData(t)
     local currentID = info[1]
     currentIndex = currentIndex + 1
     PokemonsInfo[currentIndex] = {}
-    PokemonsInfo[currentIndex].id = currentID + (0.1*special)
-    PokemonsInfo[currentIndex].special = special
-    PokemonsInfo[currentIndex].name = info[6]
-    PokemonsInfo[currentIndex].balls = info[2]
-    PokemonsInfo[currentIndex].total = 0
-    PokemonsInfo[currentIndex].price = info[5]
-    PokemonsInfo[currentIndex].waste = info[4]
+    PokemonsInfo[currentIndex]["balls"] = info[2]
+    PokemonsInfo[currentIndex]["id"] = currentID + (0.1*special)
+    PokemonsInfo[currentIndex]["special"] = special
+    PokemonsInfo[currentIndex]["name"] = info[4]
+    PokemonsInfo[currentIndex]["total"] = 0
+    PokemonsInfo[currentIndex]["price"] = info[5]
+    PokemonsInfo[currentIndex]["waste"] = info[6]
 
     for ballID, value in pairs(PokemonsInfo[currentIndex].balls) do
-      PokemonsInfo[currentIndex].total = PokemonsInfo[currentIndex].total + value
+      PokemonsInfo[currentIndex]["total"] = PokemonsInfo[currentIndex]["total"] + value
     end
   end
   refreshData() 
@@ -93,46 +92,27 @@ function toggleLoading(show)
   pokeballsWindow:getChildById("searchText"):setEnabled(not show)
 end
 
-function refreshData(orderType, page)
+function refreshData(orderType)
   if pokemonsList then
     cleanPokemons()
     
     reverse = false 
     if not preSortType then
-      preSortType = "number"
+      preSortType = "id"
     end
   
     if not orderType then 
       orderType = preSortType
     else
       reverse = (preSortType == orderType) and (sortOrder == "asc")
-    end   
-
-    
-    if orderType == "name" then
-      if reverse then
-        table.sort(PokemonsInfo, function( a,b ) return a.name < b.name end )
-      else
-        table.sort(PokemonsInfo, function( a,b ) return a.name > b.name end )
-      end
-    end
-    
-    if orderType == "number" then 
-      if reverse then
-        table.sort(PokemonsInfo, function( a,b ) return a.id > b.id end )
-      else
-        table.sort(PokemonsInfo, function( a,b ) return a.id < b.id end )
-      end
-    end
-    
-    if orderType == "total" then
-      if reverse then
-        table.sort(PokemonsInfo, function( a,b ) return a.total > b.total end )
-      else
-        table.sort(PokemonsInfo, function( a,b ) return a.total < b.total end )
-      end
     end
 
+    if reverse then
+      table.sort(PokemonsInfo, function( a,b ) return a[orderType] > b[orderType] end )
+    else
+      table.sort(PokemonsInfo, function( a,b ) return a[orderType] < b[orderType] end )
+    end
+   
     for _, value in ipairs(PokemonsInfo) do
        addData(value)
     end
@@ -148,56 +128,56 @@ function refreshData(orderType, page)
 end
 
 function addData(data)
-  if data.total == 0 then
+  if data["total"] == 0 then
     return
   end
 
   local currentPokemon = g_ui.createWidget('PokemonData', pokemonsList)
-  currentPokemon:setId(data.name)
+  currentPokemon:setId(data["name"])
   local numberString = ""  
 
-  if data.id < 100 then
+  if data["id"] < 100 then
     numberString = "0" .. numberString
   end
   
-  if data.id < 10 then
+  if data["id"] < 10 then
     numberString = "0" .. numberString
   end
             
   local imagem = currentPokemon:getChildById("dataImage")
-  imagem:setImageSource("/game_pokedex/pokemons/" .. numberString .. data.id)
-  imagem:setTooltip("Npc Price: $" .. data.price .. "\nTotal Spent: $" .. data.waste)
+  imagem:setImageSource("/game_pokedex/pokemons/" .. numberString .. data["id"])
+  imagem:setTooltip("Npc Price: $" .. data["price"] .. "\nTotal Spent: $" .. data["waste"])
   
-  if data.special then
-    numberString = numberString .. (data.id - (0.1*data.special))
+  if data["special"] then
+    numberString = numberString .. (data['id'] - (0.1*data['special']))
   else
-    numberString = numberString .. data.id 
+    numberString = numberString .. data["id"] 
   end
   
-  currentPokemon:getChildById("dataName"):setText(data.name)
+  currentPokemon:getChildById("dataName"):setText(data["name"])
   currentPokemon:getChildById("dataNumber"):setText("#".. numberString)
-  currentPokemon:getChildById("dataTotal"):setText(data.total)
+  currentPokemon:getChildById("dataTotal"):setText(data["total"])
 
   for ballID = 1,18 do
-    if checkBox:isChecked() then
+    if showAllCheckBox:isChecked() then
       local pokeballsPanel = currentPokemon:getChildById("dataPokeballs")
       local currentPokeball = g_ui.createWidget('PokeballWidget', pokeballsPanel)
       currentPokeball:setId(ballID)
       local pbImage = currentPokeball:getChildById("pokeballImage")
       pbImage:setImageSource("images/pb" .. ballID)
-      local balls = data.balls[ballID]
+      local balls = data["balls"][ballID]
       if not balls then
         balls = 0
       end
       currentPokeball:getChildById("pokeballCount"):setText(balls)   
     else
-      if data.balls[ballID] then
+      if data["balls"][ballID] then
         local pokeballsPanel = currentPokemon:getChildById("dataPokeballs")
         local currentPokeball = g_ui.createWidget('PokeballWidget', pokeballsPanel)
         currentPokeball:setId(ballID)
         local pbImage = currentPokeball:getChildById("pokeballImage")
         pbImage:setImageSource("images/pb" .. ballID)
-        currentPokeball:getChildById("pokeballCount"):setText(data.balls[ballID])
+        currentPokeball:getChildById("pokeballCount"):setText(data["balls"][ballID])
       end
     end
   end

@@ -87,7 +87,7 @@ MainWindow
       border-width: 1
       border-color: #191919
       padding: 5 10 5 10
-      @onClick: refreshData("number")
+      @onClick: refreshData("id")
         
     UIButton
       id: orderByName
@@ -169,7 +169,7 @@ MainWindow
     @onClick: hide()
 
   CheckBox
-    id: checkBox
+    id: showAllCheckBox
     anchors.right: prev.left
     anchors.bottom: parent.bottom
     margin-right: 10    
