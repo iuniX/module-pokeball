@@ -69,17 +69,17 @@ function receiveData(t)
 
   for i = 1,#t do
     local info = t[i] 
-    local special = info["isShiny"] or 0
+    local special = info[3] or 0
     local currentID = info[1]
     currentIndex = currentIndex + 1
     PokemonsInfo[currentIndex] = {}
     PokemonsInfo[currentIndex].id = currentID + (0.1*special)
     PokemonsInfo[currentIndex].special = special
-    PokemonsInfo[currentIndex].name = info["pokeName"]
+    PokemonsInfo[currentIndex].name = info[6]
     PokemonsInfo[currentIndex].balls = info[2]
     PokemonsInfo[currentIndex].total = 0
-    PokemonsInfo[currentIndex].price = info["pokePrice"]
-    PokemonsInfo[currentIndex].waste = info["totalWaste"]
+    PokemonsInfo[currentIndex].price = info[5]
+    PokemonsInfo[currentIndex].waste = info[4]
 
     for ballID, value in pairs(PokemonsInfo[currentIndex].balls) do
       PokemonsInfo[currentIndex].total = PokemonsInfo[currentIndex].total + value
