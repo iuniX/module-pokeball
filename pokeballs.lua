@@ -96,7 +96,7 @@ function refreshData(orderType)
   if pokemonsList then
     cleanPokemons()
     
-    reverse = false 
+    local reverse = false 
     if not preSortType then
       preSortType = "id"
     end
