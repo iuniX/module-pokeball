@@ -165,7 +165,7 @@ MainWindow
     anchors.right: parent.right 
     anchors.bottom: parent.bottom
     margin-right: 10
-    text: "Close"
+    !text: tr("Close")
     @onClick: hide()
 
   CheckBox
@@ -174,7 +174,7 @@ MainWindow
     anchors.bottom: parent.bottom
     margin-right: 10    
     enabled: true
-    @onCheckChange: onShowAllChecked()
+    @onCheckChange: _onCheck()
 
   Label
     !text: tr("Show all ")

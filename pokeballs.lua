@@ -1,16 +1,11 @@
-PokeballCount = { }
 local BALLS_OPCODE = 166
 
-PokemonsInfo = {}
-pokeballsWindow = nil
-pokemonsList = nil
-pokemonsListScrollBar = nil
-pageButton = nil
-currentPage = nil
-pageCount = nil
-preSortType = nil
-sortOrder = nil
-loadingPanel = nil
+local p_pokemonsInfo = {}
+local p_pokeballsWindow
+local p_pokemonsList
+local p_preSortType
+local p_sortOrder
+local p_loadingPanel
 
 local p_pokeballTopMenuButton
 local _startWindow
@@ -18,16 +13,15 @@ local _startWindow
 function init()
   p_pokeballTopMenuButton = modules.client_topmenu.addRightGameButton('pokeballButton', tr('Contador de Pokeballs'), 'images/button', toggle, true)
 
-  pokeballsWindow = g_ui.displayUI('pokeballs')
+  p_pokeballsWindow = g_ui.displayUI('pokeballs')
   
-  pokemonsList = pokeballsWindow:getChildById('pokemonsList')
-  pokemonsListScrollBar = pokeballsWindow:getChildById('pokemonsListScrollBar')
-  loadingPanel = pokeballsWindow:getChildById("loadingPanel")
-  showAllCheckBox = pokeballsWindow:getChildById("showAllCheckBox")
-  connect(showAllCheckBox, {onCheckChange = onShowAllChecked})
+  p_pokemonsList = p_pokeballsWindow:getChildById('pokemonsList')
+  p_loadingPanel = p_pokeballsWindow:getChildById("loadingPanel")
+  showAllCheckBox = p_pokeballsWindow:getChildById("showAllCheckBox")
+  connect(showAllCheckBox, {onCheckChange = _onCheck})
   showAllCheckBox:setChecked(true)
-  preSortType = "id"
-  sortOrder = "asc"
+  p_preSortType = "id"
+  p_sortOrder = "asc"
   
   g_game.handleExtended(BALLS_OPCODE, receiveData)  
   connect(g_game, { onGameEnd = hide})
@@ -38,23 +32,23 @@ end
 function terminate() 
   disconnect(g_game, {onGameEnd = hide})
   g_game.unhandleExtended(BALLS_OPCODE, receiveData)
-  pokeballsWindow:destroy()
+  p_pokeballsWindow:destroy()
   p_pokeballTopMenuButton:destroy()
 end
 
 function show()
-  pokeballsWindow:show()
-  pokeballsWindow:raise()
-  pokeballsWindow:focus()
+  p_pokeballsWindow:show()
+  p_pokeballsWindow:raise()
+  p_pokeballsWindow:focus()
 end
 
 function hide()
-  pokeballsWindow:hide()
+  p_pokeballsWindow:hide()
 end
 
-function toggle(var)
-  if pokeballsWindow:isVisible() then
-    pokeballsWindow:hide()
+function toggle (var)
+  if p_pokeballsWindow:isVisible() then
+    p_pokeballsWindow:hide()
   else
     g_game.sendExtended(BALLS_OPCODE, "open")
   end
@@ -63,7 +57,7 @@ end
 function receiveData(t)  
   if type(t) == "number" then
     if t == 1 then
-      PokemonsInfo = {}
+      p_pokemonsInfo = {}
       show()
       toggleLoading(true)
       return
@@ -72,65 +66,64 @@ function receiveData(t)
     return
   end
 
-  local currentIndex = #PokemonsInfo
+  local currentIndex = #p_pokemonsInfo
 
   for i = 1,#t do
     local info = t[i]
     local special = info[3] or 0
-    local currentID = info[1]
     currentIndex = currentIndex + 1
-    PokemonsInfo[currentIndex] = {}
-    PokemonsInfo[currentIndex].balls = info[2]
-    PokemonsInfo[currentIndex].id = currentID + (0.1*special)
-    PokemonsInfo[currentIndex].special = special
-    PokemonsInfo[currentIndex].name = info[4]
-    PokemonsInfo[currentIndex].total = 0
-    PokemonsInfo[currentIndex].price = info[5]
-    PokemonsInfo[currentIndex].waste = info[6]
+    p_pokemonsInfo[currentIndex] = {}
+    p_pokemonsInfo[currentIndex].balls = info[2]
+    p_pokemonsInfo[currentIndex].id = info[1]
+    p_pokemonsInfo[currentIndex].special = special
+    p_pokemonsInfo[currentIndex].name = info[4]
+    p_pokemonsInfo[currentIndex].total = 0
+    p_pokemonsInfo[currentIndex].price = info[5]
+    p_pokemonsInfo[currentIndex].waste = info[6]
 
-    for ballID, value in pairs(PokemonsInfo[currentIndex].balls) do
-      PokemonsInfo[currentIndex].total = PokemonsInfo[currentIndex].total + value
+    for ballID, value in pairs(p_pokemonsInfo[currentIndex].balls) do
+      p_pokemonsInfo[currentIndex].total = p_pokemonsInfo[currentIndex].total + value
     end
   end
   refreshData() 
 end
 
 function toggleLoading(show)
-  loadingPanel:setVisible(show)
-  pokeballsWindow:getChildById("searchText"):setEnabled(not show)
+  p_loadingPanel:setVisible(show)
+  p_pokeballsWindow:getChildById("searchText"):setEnabled(not show)
 end
 
 function refreshData(orderType)
-  if pokemonsList then
+  if p_pokemonsList then
     cleanPokemons()
     
     local reverse = false 
-    if not preSortType then
-      preSortType = "id"
+    if not p_preSortType then
+      p_preSortType = "id"
     end
   
     if not orderType then 
-      orderType = preSortType
+      orderType = p_preSortType
     else
-      reverse = (preSortType == orderType) and (sortOrder == "asc")
+      reverse = (p_preSortType == orderType) and (p_sortOrder == "asc")
     end
 
     if reverse then
-      table.sort(PokemonsInfo, function( a,b ) return a[orderType] > b[orderType] end )
+      table.sort(p_pokemonsInfo, function( a,b ) return a[orderType] > b[orderType] end )
     else
-      table.sort(PokemonsInfo, function( a,b ) return a[orderType] < b[orderType] end )
+      table.sort(p_pokemonsInfo, function( a,b ) return a[orderType] < b[orderType] end )
     end
    
-    for _, value in ipairs(PokemonsInfo) do
+    for _, value in ipairs(p_pokemonsInfo) do
        addData(value)
     end
     
     if reverse then
-      sortOrder = "desc"
+      p_sortOrder = "desc"
     else
-      sortOrder = "asc"
+      p_sortOrder = "asc"
     end
-    preSortType = orderType
+    p_preSortType = orderType
     
   end
 end
@@ -140,17 +133,18 @@ function addData(data)
     return
   end
 
-  local currentPokemon = g_ui.createWidget('PokemonData', pokemonsList)
+  local currentPokemon = g_ui.createWidget('PokemonData', p_pokemonsList)
   currentPokemon:setId(data.name)
+
   local id = string.format("%03d", data.id)
 
   if data.special > 0 then
-    id = id + (0.1 * data.special)
+    id = tostring(id .. "." .. data.special)
   end
 
-  local imagem = currentPokemon:getChildById("dataImage")
-  imagem:setImageSource("/game_pokedex/pokemons/" .. id)
-  imagem:setTooltip("Npc Price: $" .. data.price .. "\nTotal Spent: $" .. data.waste)
+  local image = currentPokemon:getChildById("dataImage")
+  image:setImageSource("/game_pokedex/pokemons/" .. id)
+  image:setTooltip(tr("Npc Price: $" .. data.price .. "\nTotal Spent: $" .. data.waste))
   
   currentPokemon:getChildById("dataName"):setText(data.name)
   currentPokemon:getChildById("dataNumber"):setText("#".. string.format("%03d", data.id))
@@ -172,25 +166,26 @@ end
 function onSearchTextChange(text)
   if #text <= 0 then return refreshData() end
   cleanPokemons()
-  for _, value in ipairs(PokemonsInfo) do
-    if string.find(string.lower(value.name), string.lower(text)) then
+  local text = string.lower(text)
+  for _, value in ipairs(p_pokemonsInfo) do
+    if string.find(string.lower(value.name), text) then
       addData(value)
     end
   end
 end
 
 function cleanPokemons()
-  if pokemonsList then
-    local children = pokemonsList:recursiveGetChildren()
+  if p_pokemonsList then
+    local children = p_pokemonsList:recursiveGetChildren()
     for _, child in ipairs(children) do
       child:destroy()
     end
   end
 end
 
-function onShowAllChecked()
+function _onCheck()
   cleanPokemons()
-  for _, value in ipairs(PokemonsInfo) do
+  for _, value in ipairs(p_pokemonsInfo) do
     addData(value)
   end
 end
