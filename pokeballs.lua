@@ -145,7 +145,7 @@ function addData(data)
 
   local image = currentPokemon:getChildById("dataImage")
   image:setImageSource("/game_pokedex/pokemons/" .. id)
-  image:setTooltip(tr("Npc Price: $") .. data.price .. tr("\nTotal Spent: $") .. data.waste))
+  image:setTooltip(tr("Npc Price: $") .. data.price .. tr("\nTotal Spent: $") .. data.waste)
   
   currentPokemon:getChildById("dataName"):setText(data.name)
   currentPokemon:getChildById("dataNumber"):setText("#".. string.format("%03d", data.id))
