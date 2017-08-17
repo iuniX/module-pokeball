@@ -10,6 +10,7 @@ local p_loadingPanel
 local p_pokeballTopMenuButton
 local _startWindow
 
+
 function init()
   p_pokeballTopMenuButton = modules.client_topmenu.addRightGameButton('pokeballButton', tr('Contador de Pokeballs'), 'images/button', toggle, true)
 
@@ -18,7 +19,7 @@ function init()
   p_pokemonsList = p_pokeballsWindow:getChildById('pokemonsList')
   p_loadingPanel = p_pokeballsWindow:getChildById("loadingPanel")
   showAllCheckBox = p_pokeballsWindow:getChildById("showAllCheckBox")
-  connect(showAllCheckBox, {onCheckChange = _onCheck})
+  connect(showAllCheckBox, {onCheckChange = onShowAllChecked()})
   showAllCheckBox:setChecked(true)
   p_preSortType = "id"
   p_sortOrder = "asc"
@@ -144,7 +145,7 @@ function addData(data)
 
   local image = currentPokemon:getChildById("dataImage")
   image:setImageSource("/game_pokedex/pokemons/" .. id)
-  image:setTooltip(tr("Npc Price: $" .. data.price .. "\nTotal Spent: $" .. data.waste))
+  image:setTooltip(tr("Npc Price: $") .. data.price .. tr("\nTotal Spent: $") .. data.waste))
   
   currentPokemon:getChildById("dataName"):setText(data.name)
   currentPokemon:getChildById("dataNumber"):setText("#".. string.format("%03d", data.id))
@@ -166,7 +167,7 @@ end
 function onSearchTextChange(text)
   if #text <= 0 then return refreshData() end
   cleanPokemons()
-  local text = string.lower(text)
+  text = string.lower(text)
   for _, value in ipairs(p_pokemonsInfo) do
     if string.find(string.lower(value.name), text) then
       addData(value)
@@ -183,7 +184,7 @@ function cleanPokemons()
   end
 end
 
-function _onCheck()
+function onShowAllChecked()
   cleanPokemons()
   for _, value in ipairs(p_pokemonsInfo) do
     addData(value)
