@@ -18,7 +18,7 @@ PokeballWidget < Panel
 PokemonData < Panel
   height: 35
   padding: 1
-  margin-top: 2    
+  margin-top: 2
   
   UIWidget
     id: dataNumber
@@ -65,7 +65,7 @@ PokemonData < Panel
 MainWindow
   id: pokeballsWindow
   focusable: true
-  !text: tr("Pokeballs Count")
+  !text: tr("Used Pokeballs")
   size: 712 400
   visible: false
   @onEscape: hide()
@@ -164,7 +164,6 @@ MainWindow
     @onTextChange: onSearchTextChange(self:getText())
     
   Button
-    id: exitButton
     width: 90
     anchors.right: parent.right 
     anchors.bottom: parent.bottom

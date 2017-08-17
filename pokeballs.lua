@@ -10,7 +10,7 @@ local _parseReceiveData
 local _parseFinishReceiveData
 
 function init()
-  p_pokeballTopMenuButton = modules.client_topmenu.addRightGameButton('pokeballButton', tr('Pokeball Counter'), 'images/button', toggle, true)
+  p_pokeballTopMenuButton = modules.client_topmenu.addRightGameButton('pokeballButton', tr('Used Pokeballs'), 'images/button', toggle, true)
 
   p_pokeballsWindow = g_ui.loadUI('pokeballs', rootWidget)
   p_pokemonsList = p_pokeballsWindow:getChildById('pokemonsList')
