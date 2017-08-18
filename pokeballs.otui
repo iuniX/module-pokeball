@@ -18,14 +18,13 @@ PokeballWidget < Panel
 PokemonData < Panel
   height: 35
   padding: 1
-  margin-top: 2    
+  margin-top: 2
   
   UIWidget
     id: dataNumber
     anchors.verticalCenter: parent.verticalCenter
     anchors.left: parent.left
-    width: 50
-    text-offset: 5 0
+    width: 45
     
   UIWidget
     id: dataImage
@@ -34,20 +33,22 @@ PokemonData < Panel
     image-fixed-ratio: true
     anchors.top: parent.top
     anchors.left: dataNumber.right
-    margin-left: 16
-    width: 50
+    margin-left: 2
+    width: 40
   
   UIWidget
     id: dataName 
     anchors.verticalCenter: dataNumber.verticalCenter
     anchors.left: dataImage.right
-    width: 100
+    width: 115
+    text-align: left
     
   UIWidget
     id: dataPokeballs
     size: 390 30
     anchors.top: parent.top
     anchors.left: dataName.right
+    padding-left: 3
     layout:
       type: grid
       cell-size: 43 15
@@ -64,8 +65,9 @@ PokemonData < Panel
 MainWindow
   id: pokeballsWindow
   focusable: true
-  !text: tr("Pokeballs Count")
-  size: 720 400
+  !text: tr("Used Pokeballs")
+  size: 712 400
+  visible: false
   @onEscape: hide()
 
   Panel
@@ -73,7 +75,6 @@ MainWindow
     anchors.top: parent.top
     anchors.right: parent.right
     anchors.left: parent.left
-    margin-left: 8
     margin-right: 20
     height: 20
     layout:
@@ -82,7 +83,7 @@ MainWindow
     UIButton
       id: orderByNumber
       text: "#"
-      width: 50
+      width: 45
       background-color: #222222
       border-width: 1
       border-color: #191919
@@ -92,7 +93,7 @@ MainWindow
     UIButton
       id: orderByName
       !text: tr("Name")
-      width: 150
+      width: 155
       background-color: #222222
       border-width: 1
       border-color: #191919
@@ -129,6 +130,8 @@ MainWindow
     margin-bottom: 30
     margin-right: 15
     vertical-scrollbar: pokemonsScrollBar
+    &orderType: "id"
+    &sortOrder: "asc"
 
   VerticalScrollBar
     id: pokemonsScrollBar
@@ -148,7 +151,7 @@ MainWindow
     
   Label
     id: searchLabel
-    !text: tr("Search: ")
+    !text: tr("Search") .. ":"
     anchors.top: loadingPanel.top
     anchors.left: orderPanel.left
     
@@ -157,10 +160,10 @@ MainWindow
     width: 150
     anchors.left: searchLabel.right   
     anchors.verticalCenter: searchLabel.verticalCenter
+    margin-left: 4
     @onTextChange: onSearchTextChange(self:getText())
     
   Button
-    id: exitButton
     width: 90
     anchors.right: parent.right 
     anchors.bottom: parent.bottom
@@ -173,10 +176,11 @@ MainWindow
     anchors.right: prev.left
     anchors.bottom: parent.bottom
     margin-right: 10    
-    enabled: true
-    @onCheckChange: onShowAllChecked()
+    checked: true
+    @onCheckChange: onShowAllChecked(self:isChecked())
 
   Label
-    !text: tr("Show all ")
+    !text: tr("Show all")
     anchors.right: prev.left
     anchors.bottom: parent.bottom
+    margin-right: 4
