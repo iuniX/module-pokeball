@@ -1,5 +1,6 @@
 local BALLS_OPCODE = 166
 
+local p_receivedPokemonList = {}
 local p_pokemonsInfo = {}
 local p_pokeballTopMenuButton
 local p_pokeballsWindow
@@ -23,7 +24,6 @@ function init()
   
   g_game.handleExtended(BALLS_OPCODE, receiveData)
   connect(g_game, { onGameEnd = hide})
-
 end
 
 function terminate() 
@@ -62,7 +62,7 @@ function receiveData(t)
 end
 
 function _parseStartReceiveData()
-  p_pokemonsInfo = {}
+  p_receivedPokemonList = {}
   show()
   toggleLoading(true)
 end
@@ -82,10 +82,10 @@ function _parseReceiveData(t)
       pokeInfo.total = pokeInfo.total + value
     end
 
-    table.insert(p_pokemonsInfo, pokeInfo)
+    table.insert(p_receivedPokemonList, pokeInfo)
   end
-  refreshData("id", "asc", p_currentPage)
-  _refreshPages()
+  p_pokemonsInfo = p_receivedPokemonList
+  refreshData("id", "asc")
 end
 
 function _parseFinishReceiveData()
@@ -117,7 +117,7 @@ function refreshData(orderType, sortOrder)
   p_totalPages = math.ceil(#p_pokemonsInfo / p_pokemonsPerPage)
 
   local firstIndex = 1 + (p_currentPage - 1) * p_pokemonsPerPage
-  local lastIndex = math.ceil(firstIndex + (p_pokemonsPerPage - 1), #p_pokemonsInfo)  
+  local lastIndex = math.min(firstIndex + (p_pokemonsPerPage - 1), #p_pokemonsInfo)  
 
   for value = firstIndex, lastIndex do
     if p_pokemonsInfo[value] then
@@ -127,6 +127,7 @@ function refreshData(orderType, sortOrder)
 
   p_pokemonsList.orderType = orderType
   p_pokemonsList.sortOrder = sortOrder
+  _refreshPages()
 end
 
 function addData(data)
@@ -164,16 +165,20 @@ function onSearchTextChange(text)
   text = string.lower(text)
   p_pokemonsList:destroyChildren()
   if text == '' then
-    refreshData("id", "asc", p_currentPage)
-    _refreshPages()
+    p_pokemonsInfo = p_receivedPokemonList
+    refreshData("id", "asc")
     return
   end
 
-  for _, poke in ipairs(p_pokemonsInfo) do
+  p_pokemonsInfo = {}
+
+  for _, poke in ipairs(p_receivedPokemonList) do
     if string.find(string.lower(poke.name), text) then
-      addData(poke)
+      table.insert(p_pokemonsInfo, poke)
     end
   end
+  p_currentPage = 1
+  refreshData("id", "asc")
 end
 
 function onShowAllChecked(showAll)
@@ -192,30 +197,26 @@ end
 
 function _requestFirstPage()  
   p_currentPage = 1
-  refreshData("id", "asc", 1)
-  _refreshPages()
+  refreshData("id", "asc")
 end
 
 function _requestLastPage()  
   p_currentPage = p_totalPages
-  refreshData("id", "asc", p_totalPages)
-  _refreshPages()
+  refreshData("id", "asc")
 end
 
 function _requestPrevPage()
   p_currentPage = p_currentPage - 1
-  refreshData("id", "asc", p_currentPage)
-  _refreshPages()
+  refreshData("id", "asc")
 end
 
 function _requestNextPage()
   p_currentPage = p_currentPage + 1
-  refreshData("id", "asc", p_currentPage)
-  _refreshPages()
+  refreshData("id", "asc")  
 end
 
 function _refreshPages()
-  local pageLabel = p_pokeballsWindow:recursiveGetChildById('page')
+  local pageLabel = p_pokeballsWindow:getChildById('page')
   pageLabel:setText(tr('Page: %d / %d', p_currentPage, p_totalPages))
   _refreshPageButtons()
 end
