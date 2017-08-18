@@ -5,7 +5,7 @@ local p_pokemonsInfo = {}
 local p_pokeballTopMenuButton
 local p_pokeballsWindow
 local p_pokemonsList
-local p_pokemonsPerPage = 10
+local p_pokemonsPerPage = 25
 local p_currentPage = 1
 local p_totalPages = 1
 
@@ -75,20 +75,19 @@ function _parseReceiveData(t)
     pokeInfo.name = info[4]
     pokeInfo.price = info[5]
     pokeInfo.waste = info[6]
-
     pokeInfo.total = 0
+    
     for _, value in pairs(pokeInfo.balls) do
       pokeInfo.total = pokeInfo.total + value
     end
-
     table.insert(p_receivedPokemonList, pokeInfo)
   end
-  p_pokemonsInfo = p_receivedPokemonList
-  refreshData("id", "asc")
 end
 
 function _parseFinishReceiveData()
   toggleLoading(false)
+  p_pokemonsInfo = p_receivedPokemonList
+  refreshData("id", "asc")
 end
 
 function toggleLoading(show)
@@ -118,9 +117,9 @@ function refreshData(orderType, sortOrder)
   local firstIndex = 1 + (p_currentPage - 1) * p_pokemonsPerPage
   local lastIndex = math.min(firstIndex + (p_pokemonsPerPage - 1), #p_pokemonsInfo)  
 
-  for value = firstIndex, lastIndex do
-    if p_pokemonsInfo[value] then
-      addData(p_pokemonsInfo[value])
+  for i = firstIndex, lastIndex do
+    if p_pokemonsInfo[i] then
+      addData(p_pokemonsInfo[i])
     end
   end
 
