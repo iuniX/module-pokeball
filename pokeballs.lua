@@ -15,7 +15,6 @@ local _parseFinishReceiveData
 local _refreshPages
 local _refreshPageButtons
 
-
 function init()
   p_pokeballTopMenuButton = modules.client_topmenu.addRightGameButton('pokeballButton', tr('Used Pokeballs'), 'images/button', toggle, true)
 
