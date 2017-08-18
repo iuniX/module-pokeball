@@ -23,6 +23,11 @@ function init()
   
   g_game.handleExtended(BALLS_OPCODE, receiveData)
   connect(g_game, { onGameEnd = hide})
+
+  for i = 1, p_pokemonsPerPage do
+    local widget = g_ui.createWidget('PokemonData', p_pokemonsList)
+    widget:setId(i)
+  end
 end
 
 function terminate() 
@@ -117,9 +122,11 @@ function refreshData(orderType, sortOrder)
   local firstIndex = 1 + (p_currentPage - 1) * p_pokemonsPerPage
   local lastIndex = math.min(firstIndex + (p_pokemonsPerPage - 1), #p_pokemonsInfo)  
 
+  local widgetId = 0
   for i = firstIndex, lastIndex do
     if p_pokemonsInfo[i] then
-      addData(p_pokemonsInfo[i])
+      widgetId = widgetId + 1
+      addData(p_pokemonsInfo[i], widgetId)
     end
   end
 
@@ -128,8 +135,8 @@ function refreshData(orderType, sortOrder)
   _refreshPages()
 end
 
-function addData(data)
-  local currentPokemon = g_ui.createWidget('PokemonData', p_pokemonsList)
+function addData(data, widgetId)
+  local currentPokemon = p_pokemonsList:getChildById(tostring(widgetId))
 
   local id = string.format("%03d", data.id)
   if data.shinyId > 0 then
