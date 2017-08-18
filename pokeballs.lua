@@ -5,7 +5,7 @@ local p_pokemonsInfo = {}
 local p_pokeballTopMenuButton
 local p_pokeballsWindow
 local p_pokemonsList
-local p_pokemonsPerPage = 25
+local p_pokemonsPerPage = 40
 local p_currentPage = 1
 local p_totalPages = 1
 
@@ -14,6 +14,7 @@ local _parseReceiveData
 local _parseFinishReceiveData
 local _refreshPages
 local _refreshPageButtons
+local _disablePageButtons
 
 function init()
   p_pokeballTopMenuButton = modules.client_topmenu.addRightGameButton('pokeballButton', tr('Used Pokeballs'), 'images/button', toggle, true)
@@ -27,7 +28,13 @@ function init()
   for i = 1, p_pokemonsPerPage do
     local widget = g_ui.createWidget('PokemonData', p_pokemonsList)
     widget:setId(i)
+    local pokeballsPanel = widget:getChildById("dataPokeballs")
+    for index = 1, 18 do
+      local pokeball = g_ui.createWidget('PokeballWidget', pokeballsPanel)
+      pokeball:setId(index)
+    end
   end
+  _disablePageButtons()
 end
 
 function terminate() 
@@ -115,12 +122,16 @@ function refreshData(orderType, sortOrder)
   else
     table.sort(p_pokemonsInfo, function(a, b) return a[orderType] < b[orderType] end)
   end
- 
-  p_pokemonsList:destroyChildren()
+
   p_totalPages = math.ceil(#p_pokemonsInfo / p_pokemonsPerPage)
 
+  for i = 1, p_pokemonsPerPage do
+    local currentPokemon = p_pokemonsList:getChildById(tostring(i))
+    currentPokemon:hide()
+  end
+
   local firstIndex = 1 + (p_currentPage - 1) * p_pokemonsPerPage
-  local lastIndex = math.min(firstIndex + (p_pokemonsPerPage - 1), #p_pokemonsInfo)  
+  local lastIndex = math.min(firstIndex + (p_pokemonsPerPage - 1), #p_pokemonsInfo)
 
   local widgetId = 0
   for i = firstIndex, lastIndex do
@@ -137,6 +148,7 @@ end
 
 function addData(data, widgetId)
   local currentPokemon = p_pokemonsList:getChildById(tostring(widgetId))
+  currentPokemon:show()
 
   local id = string.format("%03d", data.id)
   if data.shinyId > 0 then
@@ -154,7 +166,7 @@ function addData(data, widgetId)
   local pokeballsPanel = currentPokemon:getChildById("dataPokeballs")
   local showAllCheckBox = p_pokeballsWindow:getChildById("showAllCheckBox")
   for ballID = 1,18 do
-    local currentPokeball = g_ui.createWidget('PokeballWidget', pokeballsPanel)
+    local currentPokeball = pokeballsPanel:getChildById(ballID)
     local pbImage = currentPokeball:getChildById("pokeballImage")
     pbImage:setImageSource("images/pb" .. ballID)
     local balls = data.balls[ballID] or 0
@@ -168,7 +180,10 @@ end
 
 function onSearchTextChange(text)
   text = string.lower(text)
-  p_pokemonsList:destroyChildren()
+  for i = 1, p_pokemonsPerPage do
+    local currentPokemon = p_pokemonsList:getChildById(tostring(i))
+    currentPokemon:hide()
+  end
   if text == '' then
     p_pokemonsInfo = p_receivedPokemonList
     refreshData("id", "asc")
@@ -182,7 +197,13 @@ function onSearchTextChange(text)
       table.insert(p_pokemonsInfo, poke)
     end
   end
+
   p_currentPage = 1
+  if #p_pokemonsInfo == 0 then
+    _disablePageButtons()
+    return true
+  end
+
   refreshData("id", "asc")
 end
 
@@ -235,4 +256,15 @@ function _refreshPageButtons()
   nextButton:setEnabled(p_currentPage ~= p_totalPages)
   firstButton:setEnabled(p_currentPage ~= 1)
   prevButton:setEnabled(p_currentPage ~= 1)
+end
+
+function _disablePageButtons()
+  local prevButton = p_pokeballsWindow:getChildById('prevPage')
+  local nextButton = p_pokeballsWindow:getChildById('nextPage')
+  local firstButton = p_pokeballsWindow:getChildById('firstPage')
+  local lastButton = p_pokeballsWindow:getChildById('lastPage')
+  lastButton:setEnabled(false)
+  nextButton:setEnabled(false)
+  firstButton:setEnabled(false)
+  prevButton:setEnabled(false)
 end
