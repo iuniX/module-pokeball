@@ -98,7 +98,7 @@ function toggleLoading(show)
   p_pokeballsWindow:getChildById("searchText"):setEnabled(not show)
 end
 
-function refreshData(orderType, sortOrder, p_currentPage)
+function refreshData(orderType, sortOrder)
   if not sortOrder then
     if p_pokemonsList.orderType == orderType then
       sortOrder = p_pokemonsList.sortOrder == "asc" and "desc" or "asc"
