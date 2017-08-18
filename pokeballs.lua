@@ -4,10 +4,16 @@ local p_pokemonsInfo = {}
 local p_pokeballTopMenuButton
 local p_pokeballsWindow
 local p_pokemonsList
+local p_pokemonsPerPage = 10
+local p_currentPage = 1
+local p_totalPages = 1
 
 local _parseStartReceiveData
 local _parseReceiveData
 local _parseFinishReceiveData
+local _refreshPages
+local _refreshPageButtons
+
 
 function init()
   p_pokeballTopMenuButton = modules.client_topmenu.addRightGameButton('pokeballButton', tr('Used Pokeballs'), 'images/button', toggle, true)
@@ -17,6 +23,7 @@ function init()
   
   g_game.handleExtended(BALLS_OPCODE, receiveData)
   connect(g_game, { onGameEnd = hide})
+
 end
 
 function terminate() 
@@ -77,7 +84,8 @@ function _parseReceiveData(t)
 
     table.insert(p_pokemonsInfo, pokeInfo)
   end
-  refreshData("id", "asc")
+  refreshData("id", "asc", p_currentPage)
+  _refreshPages()
 end
 
 function _parseFinishReceiveData()
@@ -90,7 +98,7 @@ function toggleLoading(show)
   p_pokeballsWindow:getChildById("searchText"):setEnabled(not show)
 end
 
-function refreshData(orderType, sortOrder)
+function refreshData(orderType, sortOrder, p_currentPage)
   if not sortOrder then
     if p_pokemonsList.orderType == orderType then
       sortOrder = p_pokemonsList.sortOrder == "asc" and "desc" or "asc"
@@ -106,8 +114,15 @@ function refreshData(orderType, sortOrder)
   end
  
   p_pokemonsList:destroyChildren()
-  for _, value in ipairs(p_pokemonsInfo) do
-    addData(value)
+  p_totalPages = math.ceil(#p_pokemonsInfo / p_pokemonsPerPage)
+
+  local firstIndex = 1 + (p_currentPage - 1) * p_pokemonsPerPage
+  local lastIndex = math.ceil(firstIndex + (p_pokemonsPerPage - 1), #p_pokemonsInfo)  
+
+  for value = firstIndex, lastIndex do
+    if p_pokemonsInfo[value] then
+      addData(p_pokemonsInfo[value])
+    end
   end
 
   p_pokemonsList.orderType = orderType
@@ -147,11 +162,17 @@ end
 
 function onSearchTextChange(text)
   text = string.lower(text)
+  p_pokemonsList:destroyChildren()
+  if text == '' then
+    refreshData("id", "asc", p_currentPage)
+    _refreshPages()
+    return
+  end
 
-  for _,pokemonWidget in ipairs(p_pokemonsList:getChildren()) do
-    local nameWidget = pokemonWidget:getChildById("dataName")
-    local match = #text == 0 or string.find(string.lower(nameWidget:getText()), text)
-    pokemonWidget:setVisible(match)
+  for _, poke in ipairs(p_pokemonsInfo) do
+    if string.find(string.lower(poke.name), text) then
+      addData(poke)
+    end
   end
 end
 
@@ -167,4 +188,45 @@ function onShowAllChecked(showAll)
       pokeballWidget:setVisible(showAll or count > 0)
     end
   end
+end
+
+function _requestFirstPage()  
+  p_currentPage = 1
+  refreshData("id", "asc", 1)
+  _refreshPages()
+end
+
+function _requestLastPage()  
+  p_currentPage = p_totalPages
+  refreshData("id", "asc", p_totalPages)
+  _refreshPages()
+end
+
+function _requestPrevPage()
+  p_currentPage = p_currentPage - 1
+  refreshData("id", "asc", p_currentPage)
+  _refreshPages()
+end
+
+function _requestNextPage()
+  p_currentPage = p_currentPage + 1
+  refreshData("id", "asc", p_currentPage)
+  _refreshPages()
+end
+
+function _refreshPages()
+  local pageLabel = p_pokeballsWindow:recursiveGetChildById('page')
+  pageLabel:setText(tr('Page: %d / %d', p_currentPage, p_totalPages))
+  _refreshPageButtons()
+end
+
+function _refreshPageButtons()
+  local prevButton = p_pokeballsWindow:getChildById('prevPage')
+  local nextButton = p_pokeballsWindow:getChildById('nextPage')
+  local firstButton = p_pokeballsWindow:getChildById('firstPage')
+  local lastButton = p_pokeballsWindow:getChildById('lastPage')
+  lastButton:setEnabled(p_currentPage ~= p_totalPages)
+  nextButton:setEnabled(p_currentPage ~= p_totalPages)
+  firstButton:setEnabled(p_currentPage ~= 1)
+  prevButton:setEnabled(p_currentPage ~= 1)
 end

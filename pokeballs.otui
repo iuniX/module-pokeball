@@ -184,3 +184,48 @@ MainWindow
     anchors.right: prev.left
     anchors.bottom: parent.bottom
     margin-right: 4
+
+  Button
+    id: lastPage
+    text: >>
+    anchors.right: prev.left
+    anchors.bottom: parent.bottom
+    margin-right: 80
+    width: 25
+    @onClick: _requestLastPage()
+
+  Button
+    id: nextPage
+    text: >
+    anchors.right: prev.left
+    anchors.bottom: parent.bottom
+    margin-right: 2
+    width: 15
+    @onClick: _requestNextPage()
+
+  Button
+    id: prevPage
+    text: <
+    anchors.right: prev.left
+    anchors.bottom: parent.bottom
+    margin-right: 2
+    width: 15
+    @onClick: _requestPrevPage()
+
+  Button
+    id: firstPage
+    text: <<
+    anchors.right: prev.left
+    anchors.bottom: parent.bottom
+    margin-right: 2
+    width: 25
+    @onClick: _requestFirstPage()
+
+  Label
+    id: page
+    !text: tr('Page: %d / %d', 1, 1)
+    anchors.right: prev.left
+    anchors.bottom: parent.bottom
+    margin-bottom: 3
+    margin-right: 7
+    text-auto-resize: true
